@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <!-- WiX Toolset Source File for Omni Preview Windows MSI Installer -->
+  <Product Id="*" Name="Omni Preview" Language="1033" Version="1.0.0.0" Manufacturer="Rakibul Hasan" UpgradeCode="eabb628e-a0be-489C-92d4-eb40055fbfdb">
+    <Package InstallerVersion="200" Compressed="yes" InstallScope="perMachine" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+    <MediaTemplate EmbedCab="yes" />
+
+    <Feature Id="ProductFeature" Title="Omni Preview" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <!-- Add ComponentRefs for bundled DLLs and data folder -->
+    </Feature>
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="OmniPreview">
+
+          <Component Id="MainExecutable" Guid="a1b2c3d4-e5f6-7890-abcd-ef1234567890">
+            <File Id="OmniPreviewExe" Source="build\windows\x64\runner\Release\OmniPreview.exe" KeyPath="yes">
+              <Shortcut Id="DesktopShortcut" Directory="DesktopFolder" Name="Omni Preview" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
+              <Shortcut Id="StartMenuShortcut" Directory="ProgramMenuFolder" Name="Omni Preview" WorkingDirectory="INSTALLFOLDER" Advertise="yes" />
+            </File>
+
+            <!-- Declarative ProgID and File Extensions (Native MSI approach, NO batch scripts needed) -->
+            <ProgId Id="OmniPreview.Document" Description="Omni Preview Document">
+              <Extension Id="pdf" ContentType="application/pdf">
+                <Verb Id="open" Command="Open with Omni Preview" TargetFile="OmniPreviewExe" Argument="&quot;%1&quot;" />
+              </Extension>
+              <Extension Id="docx" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                <Verb Id="open" Command="Open with Omni Preview" TargetFile="OmniPreviewExe" Argument="&quot;%1&quot;" />
+              </Extension>
+              <Extension Id="jpg" ContentType="image/jpeg">
+                <Verb Id="open" Command="Open with Omni Preview" TargetFile="OmniPreviewExe" Argument="&quot;%1&quot;" />
+              </Extension>
+              <Extension Id="png" ContentType="image/png">
+                <Verb Id="open" Command="Open with Omni Preview" TargetFile="OmniPreviewExe" Argument="&quot;%1&quot;" />
+              </Extension>
+              <Extension Id="txt" ContentType="text/plain">
+                <Verb Id="open" Command="Open with Omni Preview" TargetFile="OmniPreviewExe" Argument="&quot;%1&quot;" />
+              </Extension>
+              <!-- Add additional file extensions here as needed -->
+            </ProgId>
+          </Component>
+
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder" Name="Desktop" />
+      <Directory Id="ProgramMenuFolder" Name="Programs" />
+    </Directory>
+  </Product>
+</Wix>

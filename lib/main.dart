@@ -18,12 +18,18 @@ void main(List<String> args) async {
   await di.init();
 
   String? initialFilePath;
-  // Windows file association (primary case)
+  // Windows / Desktop file association (primary case)
   if (args.isNotEmpty) {
     final candidate = args.first;
-    if (File(candidate).existsSync()) {
-      initialFilePath = candidate;
+    final file = File(candidate);
+    if (file.existsSync()) {
+      initialFilePath = file.absolute.path;
     }
+  }
+
+  // Set the working directory base to the application folder
+  if (Platform.isWindows || Platform.isLinux || Platform.isMacOS) {
+    Directory.current = File(Platform.resolvedExecutable).parent.path;
   }
 
   runApp(MyApp(initialFilePath: initialFilePath));

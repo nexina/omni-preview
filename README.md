@@ -15,9 +15,27 @@ For help getting started with Flutter development, view the
 [online documentation](https://docs.flutter.dev/), which offers tutorials,
 samples, guidance on mobile development, and a full API reference.
 
-setup
-windows: uso Inno software, and run /setup/windows/install.iss
+## Building & Packaging
 
-linux
+### Windows (Microsoft Store / MSIX Packaging)
+1. Build release binaries:
+   ```bash
+   flutter build windows --release
+   ```
+2. Generate MSIX Package (with automatic declarative file associations for Microsoft Store):
+   ```bash
+   dart run msix:create
+   ```
+   *The generated `.msix` file will be in `build/windows/x64/runner/Release/omni_preview.msix`.*
+
+### Android (Google Play Store)
+1. Build Android App Bundle (.aab):
+   ```bash
+   flutter build appbundle --release
+   ```
+
+### Linux
+```bash
 sudo apt install libmpv-dev mpv libgtk-3-dev lld
- sudo -E env "PATH=$PATH" flutter build linux --release -v
+sudo -E env "PATH=$PATH" flutter build linux --release -v
+```

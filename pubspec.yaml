@@ -73,6 +73,41 @@ dependency_overrides:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  msix: ^3.16.7
+
+msix_config:
+  display_name: Omni Preview
+  publisher_display_name: Rakibul Hasan
+  identity_name: com.nexina.omnipreview
+  msstore: true
+  logo_path: assets/icons/omni-preview-logo.png
+  capabilities: internetClient
+  file_extensions:
+    - pdf
+    - docx
+    - xlsx
+    - pptx
+    - jpg
+    - jpeg
+    - png
+    - gif
+    - bmp
+    - svg
+    - webp
+    - txt
+    - md
+    - json
+    - xml
+    - html
+    - css
+    - js
+    - ts
+    - py
+    - zip
+    - mp3
+    - mp4
+    - mkv
+    - avi
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
