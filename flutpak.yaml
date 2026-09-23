@@ -1,0 +1,22 @@
+app-id: nexina.omni.preview
+command: omni_preview
+repo-url: https://github.com/nexina/omni-preview.git
+runtime-version: '24.08'
+
+metainfo-path: linux/nexina.omni.preview.metainfo.xml
+desktop-entry-path: linux/nexina.omni.preview.desktop
+
+icons:
+  - size: 256x256
+    path: linux/nexina.omni.preview.png
+
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --device=dri
+  - --share=ipc
+  - --share=network
+  - --filesystem=host
+
+flutter:
+  ref: '3.44.0'

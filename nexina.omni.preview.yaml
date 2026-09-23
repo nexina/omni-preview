@@ -1,0 +1,32 @@
+app-id: nexina.omni.preview
+runtime: org.freedesktop.Platform
+runtime-version: '24.08'
+sdk: org.freedesktop.Sdk
+command: omni_preview
+
+finish-args:
+  - --socket=wayland
+  - --socket=x11
+  - --device=dri
+  - --share=ipc
+  - --share=network
+  - --filesystem=host
+
+modules:
+  - name: omni_preview
+    buildsystem: simple
+    build-commands:
+      - flutter build linux --release --offline
+      - mkdir -p /app/bin /app/share/applications /app/share/icons/hicolor/128x128/apps /app/share/metainfo
+      - cp -r build/linux/x64/release/bundle/* /app/bin/
+      - install -Dm644 linux/nexina.omni.preview.desktop /app/share/applications/
+      - install -Dm644 linux/nexina.omni.preview.metainfo.xml /app/share/metainfo/
+      - install -Dm644 linux/nexina.omni.preview.png /app/share/icons/hicolor/128x128/apps/
+    sources:
+      # Local source directory (used while repository is private)
+      - type: dir
+        path: .
+      # - type: git
+      #   url: https://github.com/nexina/omni-preview.git
+      #   tag: v1.0.1
+      - pubspec-sources.json

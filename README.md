@@ -39,3 +39,42 @@ samples, guidance on mobile development, and a full API reference.
 sudo apt install libmpv-dev mpv libgtk-3-dev lld
 sudo -E env "PATH=$PATH" flutter build linux --release -v
 ```
+
+### Linux (Flatpak / Flathub)
+
+App ID: `nexina.omni.preview`
+
+#### 1. Activate `flutpak` and Generate Offline Bundle
+Flathub builds apps 100% offline using pre-declared package and SDK SHA-256 hashes.
+Use [`flutpak`](https://pub.dev/packages/flutpak) to generate the offline sources and manifest:
+```bash
+# Activate flutpak CLI tool
+dart pub global activate flutpak
+
+# Generate offline sources and Flathub manifest for tag/release v1.0.1
+flutpak generate --tag v1.0.1
+```
+*This generates `flatpak/generated/pubspec-sources.json` (containing 466 offline package & engine sources) and the release manifest `flatpak/generated/nexina.omni.preview.yml`.*
+
+#### 2. Test Local Flatpak Build
+```bash
+# Install Freedesktop SDK and LLVM extension
+flatpak install flathub org.freedesktop.Sdk//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk.Extension.llvm19//24.08
+
+# Build the flatpak package locally using generated manifest
+flatpak-builder --force-clean build-dir flatpak/generated/nexina.omni.preview.yml
+
+# Test running the built flatpak locally
+flatpak-builder --run build-dir flatpak/generated/nexina.omni.preview.yml omni_preview
+
+# Run Flathub linter
+flatpak-builder-lint manifest flatpak/generated/nexina.omni.preview.yml
+```
+
+#### 3. Submit to Flathub
+1. Fork [flathub/flathub](https://github.com/flathub/flathub) on GitHub.
+2. Create a new branch named `nexina.omni.preview`.
+3. Add `flatpak/generated/nexina.omni.preview.yml`, `pubspec-sources.json`, and `flathub.json`.
+4. Submit a Pull Request against `flathub/flathub`.
+
+
