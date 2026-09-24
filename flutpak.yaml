@@ -19,4 +19,4 @@ finish-args:
   - --filesystem=host
 
 flutter:
-  ref: '3.44.0'
+  ref: '3.47.5'

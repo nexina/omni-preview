@@ -12,6 +12,10 @@ sdk: org.freedesktop.Sdk
 sdk-extensions:
   - org.freedesktop.Sdk.Extension.llvm19
 command: omni_preview
+# Build dependencies for zenity (libadwaita)
+build-options:
+  build-args:
+    - --share=network
 # Sandbox permissions — review and adjust for your app.
 finish-args:
   - --share=ipc
@@ -21,7 +25,120 @@ finish-args:
   - --socket=x11
   - --share=network
   - --filesystem=host
+  - --talk-name=org.freedesktop.portal.Documents
+  - --talk-name=org.freedesktop.portal.FileChooser
 modules:
+  - name: zenity
+    buildsystem: meson
+    config-opts:
+      - -Dlibnotify=false
+      - -Dwebkitgtk=false
+    build-options:
+      build-args:
+        - --share=network
+    sources:
+      - type: archive
+        url: https://download.gnome.org/sources/zenity/3.44/zenity-3.44.0.tar.xz
+        sha256: c15582301ed90b9d42ce521dbccf99a989f22f12041bdd5279c6636da99ebf65
+        x-checker-data:
+          type: anitya
+          project-id: 13122
+          stable-only: true
+          url-template: https://download.gnome.org/sources/zenity/3.44/zenity-$version.tar.xz
+      - type: patch
+        path: patches/zenity-icon-cache.patch
+
+  - name: libass
+    buildsystem: meson
+    config-opts:
+      - -Dtest=false
+      - -Dprofile=false
+    sources:
+      - type: archive
+        url: https://github.com/libass/libass/releases/download/0.17.3/libass-0.17.3.tar.xz
+        sha256: eae425da50f0015c21f7b3a9c7262a910f0218af469e22e2931462fed3c50959
+        x-checker-data:
+          type: anitya
+          project-id: 1323
+          stable-only: true
+          url-template: https://github.com/libass/libass/releases/download/$version/libass-$version.tar.xz
+
+  - name: libplacebo
+    buildsystem: meson
+    config-opts:
+      - -Ddemos=false
+      - -Dtests=false
+      - -Dd3d11=disabled
+      - -Dvulkan=disabled
+      - -Dlcms=disabled
+      - -Dshaderc=disabled
+      - -Dglslang=disabled
+      - --prefix=/app
+    build-options:
+      env:
+        PKG_CONFIG_PATH: /app/lib64/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig
+    sources:
+      - type: git
+        url: https://github.com/haasn/libplacebo.git
+        tag: v6.338.2
+        commit: 25ff836306a30e303ea524d1e276a51f2866e7f0
+
+  - name: mpv
+    buildsystem: meson
+    build-options:
+      build-args:
+        - --share=network
+      env:
+        PKG_CONFIG_PATH: /app/lib64/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig
+    config-opts:
+      - -Dmanpage-build=disabled
+      - -Dhtml-build=disabled
+      - -Dpdf-build=disabled
+      - -Dcplayer=false
+      - -Dlibmpv=true
+      - -Dlua=disabled
+      - -Djavascript=disabled
+      - -Dvulkan=disabled
+      - -Dcaca=disabled
+      - -Ddrm=disabled
+      - -Dgbm=disabled
+      - -Dwayland=disabled
+      - -Dx11=disabled
+      - -Dsdl2=disabled
+      - -Dshaderc=disabled
+      - -Dlcms2=disabled
+      - -Duchardet=disabled
+      - -Drubberband=disabled
+      - -Dlibarchive=disabled
+      - -Dzimg=disabled
+      - -Dvapoursynth=disabled
+      - -Dlibbluray=disabled
+      - -Ddvdnav=disabled
+      - -Dcdda=disabled
+      - -Dlibavdevice=disabled
+      - -Dvaapi=disabled
+      - -Dvaapi-x11=disabled
+      - -Dvaapi-drm=disabled
+      - -Dvaapi-wayland=disabled
+      - -Dvdpau=disabled
+      - -Dvdpau-gl-x11=disabled
+      - -Dgl=disabled
+      - -Degl=disabled
+      - -Degl-x11=disabled
+      - -Degl-drm=disabled
+      - -Degl-wayland=disabled
+      - -Dplain-gl=disabled
+      - -Dxv=disabled
+    sources:
+      - type: archive
+        url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.38.0.tar.gz
+        sha256: 86d9ef40b6058732f67b46d0bbda24a074fae860b3eaae05bab3145041303066
+        x-checker-data:
+          type: anitya
+          project-id: 12345
+          stable-only: true
+          url-template: https://github.com/mpv-player/mpv/archive/refs/tags/v$version.tar.gz
+
   - name: preview
     buildsystem: simple
     build-options:
@@ -33,9 +150,11 @@ modules:
           env:
             BUNDLE_PATH: build/linux/arm64/release/bundle
       append-path: /usr/lib/sdk/llvm19/bin:/var/lib/flutter/bin
-      prepend-ld-library-path: /usr/lib/sdk/llvm19/lib
+      prepend-ld-library-path: /usr/lib/sdk/llvm19/lib:/app/lib64
       env:
         PUB_CACHE: /run/build/preview/.pub-cache
+        PKG_CONFIG_PATH: /app/lib64/pkgconfig:/usr/lib64/pkgconfig:/usr/share/pkgconfig
+        LDFLAGS: -L/app/lib64 -Wl,-rpath,/app/lib64
     # Build steps — review and customise for your project.
     build-commands:
       - flutter pub get --offline
@@ -49,7 +168,7 @@ modules:
     sources:
       # Local source directory (used while repository is private)
       - type: dir
-        path: ..
+        path: ../..
       # - type: git
       #   url: https://github.com/nexina/omni-preview.git
 

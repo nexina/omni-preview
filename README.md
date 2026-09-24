@@ -35,14 +35,19 @@ samples, guidance on mobile development, and a full API reference.
    ```
 
 ### Linux
+**Required dependency for file dialogs:** `zenity` (GTK dialog backend)
 ```bash
-sudo apt install libmpv-dev mpv libgtk-3-dev lld
+sudo apt install zenity libmpv-dev mpv libgtk-3-dev lld
 sudo -E env "PATH=$PATH" flutter build linux --release -v
 ```
+
+> **Note:** The `file_picker` package requires `zenity` (or `kdialog`/`qarma`) to show native file dialogs on Linux. On GNOME-based distros (Ubuntu, Zorin OS, Fedora, etc.), install `zenity`. On KDE Plasma, install `kdialog` instead.
 
 ### Linux (Flatpak / Flathub)
 
 App ID: `nexina.omni.preview`
+
+> **Note:** The Flatpak manifest now bundles `zenity` (built from source), so file dialogs work out-of-the-box without host dependencies.
 
 #### 1. Activate `flutpak` and Generate Offline Bundle
 Flathub builds apps 100% offline using pre-declared package and SDK SHA-256 hashes.
@@ -60,6 +65,8 @@ flutpak generate --tag v1.0.1
 ```bash
 # Install Freedesktop SDK and LLVM extension
 flatpak install flathub org.freedesktop.Sdk//24.08 org.freedesktop.Platform//24.08 org.freedesktop.Sdk.Extension.llvm19//24.08
+
+sudo apt install flatpak-builder
 
 # Build the flatpak package locally using generated manifest
 flatpak-builder --force-clean build-dir flatpak/generated/nexina.omni.preview.yml
