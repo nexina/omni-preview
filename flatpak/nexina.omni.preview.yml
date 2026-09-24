@@ -27,27 +27,8 @@ finish-args:
   - --filesystem=host
   - --talk-name=org.freedesktop.portal.Documents
   - --talk-name=org.freedesktop.portal.FileChooser
+  - --env=GTK_USE_PORTAL=0
 modules:
-  - name: zenity
-    buildsystem: meson
-    config-opts:
-      - -Dlibnotify=false
-      - -Dwebkitgtk=false
-    build-options:
-      build-args:
-        - --share=network
-    sources:
-      - type: archive
-        url: https://download.gnome.org/sources/zenity/3.44/zenity-3.44.0.tar.xz
-        sha256: c15582301ed90b9d42ce521dbccf99a989f22f12041bdd5279c6636da99ebf65
-        x-checker-data:
-          type: anitya
-          project-id: 13122
-          stable-only: true
-          url-template: https://download.gnome.org/sources/zenity/3.44/zenity-$version.tar.xz
-      - type: patch
-        path: patches/zenity-icon-cache.patch
-
   - name: libass
     buildsystem: meson
     config-opts:
@@ -129,6 +110,7 @@ modules:
       - -Degl-wayland=disabled
       - -Dplain-gl=disabled
       - -Dxv=disabled
+      - -Dgpl=false
     sources:
       - type: archive
         url: https://github.com/mpv-player/mpv/archive/refs/tags/v0.38.0.tar.gz
@@ -157,18 +139,22 @@ modules:
         LDFLAGS: -L/app/lib64 -Wl,-rpath,/app/lib64
     # Build steps — review and customise for your project.
     build-commands:
-      - flutter pub get --offline
-      - flutter build linux --release --no-pub
       - mkdir -p /app/preview
       - cp -r "$BUNDLE_PATH"/. /app/preview/
-      - install -Dm755 flatpak/preview-wrapper.sh /app/bin/omni_preview
-      - install -Dm644 linux/nexina.omni.preview.metainfo.xml /app/share/metainfo/nexina.omni.preview.metainfo.xml
-      - install -Dm644 linux/nexina.omni.preview.desktop /app/share/applications/nexina.omni.preview.desktop
-      - install -Dm644 linux/nexina.omni.preview.png /app/share/icons/hicolor/256x256/apps/nexina.omni.preview.png
+      - install -Dm755 preview-wrapper.sh /app/bin/omni_preview
+      - install -Dm644 nexina.omni.preview.metainfo.xml /app/share/metainfo/nexina.omni.preview.metainfo.xml
+      - install -Dm644 nexina.omni.preview.desktop /app/share/applications/nexina.omni.preview.desktop
+      - install -Dm644 nexina.omni.preview.png /app/share/icons/hicolor/256x256/apps/nexina.omni.preview.png
     sources:
-      # Local source directory (used while repository is private)
-      - type: dir
-        path: ../..
-      # - type: git
-      #   url: https://github.com/nexina/omni-preview.git
+      - type: archive
+        url: https://your-host.example.com/omni-preview-linux-x64-1.0.1.tar.gz
+        sha256: <sha256 from step 2>
+      - type: file
+        path: flatpak/preview-wrapper.sh
+      - type: file
+        path: linux/nexina.omni.preview.metainfo.xml
+      - type: file
+        path: linux/nexina.omni.preview.desktop
+      - type: file
+        path: linux/nexina.omni.preview.png
 

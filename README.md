@@ -57,7 +57,7 @@ Use [`flutpak`](https://pub.dev/packages/flutpak) to generate the offline source
 dart pub global activate flutpak
 
 # Generate offline sources and Flathub manifest for tag/release v1.0.1
-flutpak generate --tag v1.0.1
+flutpak generate
 ```
 *This generates `flatpak/generated/pubspec-sources.json` (containing 466 offline package & engine sources) and the release manifest `flatpak/generated/nexina.omni.preview.yml`.*
 
@@ -69,7 +69,7 @@ flatpak install flathub org.freedesktop.Sdk//24.08 org.freedesktop.Platform//24.
 sudo apt install flatpak-builder
 
 # Build the flatpak package locally using generated manifest
-flatpak-builder --force-clean build-dir flatpak/generated/nexina.omni.preview.yml
+flatpak-builder --user --install --force-clean build-dir flatpak/generated/nexina.omni.preview.yml
 
 # Test running the built flatpak locally
 flatpak-builder --run build-dir flatpak/generated/nexina.omni.preview.yml omni_preview
