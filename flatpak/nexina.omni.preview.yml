@@ -22,9 +22,12 @@ finish-args:
   - --socket=fallback-x11
   - --socket=wayland
   - --device=dri
-  - --socket=x11
   - --share=network
-  - --filesystem=host
+  - --filesystem=xdg-documents
+  - --filesystem=xdg-download
+  - --filesystem=xdg-pictures
+  - --filesystem=xdg-videos
+  - --filesystem=xdg-music
   - --talk-name=org.freedesktop.portal.Documents
   - --talk-name=org.freedesktop.portal.FileChooser
   - --env=GTK_USE_PORTAL=0
@@ -124,13 +127,6 @@ modules:
   - name: preview
     buildsystem: simple
     build-options:
-      arch:
-        x86_64:
-          env:
-            BUNDLE_PATH: build/linux/x64/release/bundle
-        aarch64:
-          env:
-            BUNDLE_PATH: build/linux/arm64/release/bundle
       append-path: /usr/lib/sdk/llvm19/bin:/var/lib/flutter/bin
       prepend-ld-library-path: /usr/lib/sdk/llvm19/lib:/app/lib64
       env:
@@ -140,21 +136,24 @@ modules:
     # Build steps — review and customise for your project.
     build-commands:
       - mkdir -p /app/preview
-      - cp -r "$BUNDLE_PATH"/. /app/preview/
+      - cp -r omni-preview-linux-x64-1.0.1/. /app/preview/
       - install -Dm755 preview-wrapper.sh /app/bin/omni_preview
       - install -Dm644 nexina.omni.preview.metainfo.xml /app/share/metainfo/nexina.omni.preview.metainfo.xml
       - install -Dm644 nexina.omni.preview.desktop /app/share/applications/nexina.omni.preview.desktop
       - install -Dm644 nexina.omni.preview.png /app/share/icons/hicolor/256x256/apps/nexina.omni.preview.png
     sources:
       - type: archive
-        url: https://your-host.example.com/omni-preview-linux-x64-1.0.1.tar.gz
-        sha256: <sha256 from step 2>
+        url: https://github.com/nexina/omni-preview-releases/releases/download/1.0.1.0/omni-preview-linux-x64-1.0.1.tar.gz
+        sha256: 0bb4c0ff305214fa3c27b0737f82aa2ac392e1c71e638095f988c8e5fe826e97
+        dest: omni-preview-linux-x64-1.0.1
       - type: file
-        path: flatpak/preview-wrapper.sh
+        path: preview-wrapper.sh
       - type: file
-        path: linux/nexina.omni.preview.metainfo.xml
+        path: nexina.omni.preview.metainfo.xml
       - type: file
-        path: linux/nexina.omni.preview.desktop
+        path: nexina.omni.preview.desktop
       - type: file
-        path: linux/nexina.omni.preview.png
+        path: nexina.omni.preview.png
+      - type: file
+        path: LICENSE
 
