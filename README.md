@@ -129,3 +129,63 @@ flatpak run org.freedesktop.appstream-glib validate linux/nexina.omni.preview.me
 **Releasing an update:** repeat steps 1–2 (new tarball, new tag, new
 `url`/`sha256` in the manifest), then push the change as a new commit/PR —
 there is no automated rebuild-from-git step since the source stays private.
+
+---
+
+### Linux (Snap / Snap Store)
+
+App ID: `omni-preview`
+
+#### 1. Build the snap package
+```bash
+# Requires LXD or Multipass for clean build environment
+# First-time setup:
+sudo snap install snapcraft --classic
+sudo snap install lxd
+sudo lxd init --auto
+sudo usermod -aG lxd $USER
+newgrp lxd  # or log out/in
+
+# Build the snap
+snapcraft pack --use-lxd
+```
+
+The generated `.snap` file will be in the project root (e.g., `omni-preview_1.0.1_amd64.snap`).
+
+#### 2. Register the snap name (first time only)
+```bash
+snapcraft register omni-preview
+```
+
+#### 3. Upload to Snap Store
+```bash
+snapcraft upload --release=stable omni-preview_1.0.1_amd64.snap
+```
+
+#### 4. Request manual review (required for D-Bus slot)
+The snap uses a custom D-Bus slot (`org.nexina.omni_preview`) for single-instance enforcement. This requires manual review:
+
+1. Go to the [Snapcraft dashboard](https://snapcraft.io/snaps/omni-preview)
+2. Click **"Request manual review"** for the `dbus` interface
+3. Provide justification:
+   > "This application uses a custom D-Bus bus name (`org.nexina.omni_preview`) to enforce single-instance behavior. When the user launches the app while it's already running, the new instance sends a D-Bus message to the existing instance to activate its window and passes any file arguments. This is standard practice for desktop applications (similar to VS Code, Firefox, etc.) and does not expose any sensitive system APIs."
+
+#### 5. Release to stable
+Once approved, release to stable channel:
+```bash
+snapcraft release omni-preview <revision> stable
+# or via dashboard: https://snapcraft.io/snaps/omni-preview/releases
+```
+
+#### Updating the snap
+```bash
+# Update version in snapcraft.yaml
+# Build new snap
+snapcraft pack --use-lxd
+# Upload new revision
+snapcraft upload --release=stable omni-preview_<new-version>_amd64.snap
+# Release to stable (after review if needed)
+snapcraft release omni-preview <new-revision> stable
+```
+
+**Note:** The snap uses the `flutter` plugin which handles `flutter pub get` and `flutter build linux --release` automatically. The `override-build` step cleans any pre-existing `build/` directory to prevent CMake cache mismatches, then installs the wrapper script, desktop file, icon, and metainfo.

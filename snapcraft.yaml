@@ -1,0 +1,112 @@
+name: omni-preview
+version: 1.0.1
+summary: All-in-one file previewer and document viewer
+description: |
+  Omni Preview is a powerful all-in-one file previewer and document viewer application.
+  It supports a wide range of file formats including PDF, Office documents (docx, xlsx, pptx),
+  images, videos, audio files, archives, and more.
+
+title: Omni Preview
+contact: https://github.com/101rakibulhasan/omni_preview/issues
+license: MIT
+issues: https://github.com/101rakibulhasan/omni_preview/issues
+source-code: https://github.com/101rakibulhasan/omni_preview
+website: https://nexina.github.io/omni/
+
+confinement: strict
+base: core22
+grade: stable
+
+slots:
+  dbus-omni-preview:
+    interface: dbus
+    bus: session
+    name: org.nexina.omni_preview
+
+apps:
+  omni-preview:
+    command: omni_preview
+    extensions: [gnome]
+    plugs:
+      - network
+      - network-bind
+      - home
+      - removable-media
+      - desktop
+      - desktop-legacy
+      - wayland
+      - x11
+      - opengl
+      - audio-playback
+    slots:
+      - dbus-omni-preview
+    environment:
+      # Flutter/Dart environment variables
+      FLUTTER_ROOT: $SNAP/usr/share/flutter
+      DART_SDK: $SNAP/usr/lib/dart
+    desktop: usr/share/applications/nexina.omni.preview.desktop
+
+parts:
+  omni-preview:
+    source: .
+    plugin: flutter
+    flutter-target: lib/main.dart
+    build-packages:
+      - clang
+      - cmake
+      - ninja-build
+      - pkg-config
+      - libgtk-3-dev
+      - libblkid-dev
+      - liblzma-dev
+      - libsecret-1-dev
+      - libgstreamer1.0-dev
+      - libgstreamer-plugins-base1.0-dev
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - gstreamer1.0-libav
+      - libavcodec-dev
+      - libavformat-dev
+      - libavutil-dev
+      - libswscale-dev
+      - libmpv-dev
+    stage-packages:
+      - libgtk-3-0
+      - libblkid1
+      - liblzma5
+      - libsecret-1-0
+      - libgstreamer1.0-0
+      - libgstreamer-plugins-base1.0-0
+      - gstreamer1.0-plugins-base
+      - gstreamer1.0-plugins-good
+      - gstreamer1.0-plugins-bad
+      - gstreamer1.0-libav
+      - libavcodec58
+      - libavformat58
+      - libavutil56
+      - libswscale5
+      - libmpv1
+    override-build: |
+      # Clean any pre-existing build directory that may have CMake cache from host
+      rm -rf build
+      # Let the flutter plugin do its standard build
+      snapcraftctl build
+      # After build, install additional files
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/bin
+      cat > $SNAPCRAFT_PART_INSTALL/usr/bin/omni_preview << 'EOF'
+      #!/bin/sh
+      export LD_LIBRARY_PATH=$SNAP/usr/lib/$SNAPCRAFT_ARCH_TRIPLET:$SNAP/lib/$SNAPCRAFT_ARCH_TRIPLET:$LD_LIBRARY_PATH
+      export PATH=$SNAP/usr/bin:$PATH
+      exec $SNAP/omni_preview "$@"
+      EOF
+      chmod +x $SNAPCRAFT_PART_INSTALL/usr/bin/omni_preview
+      # Install desktop file
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/applications
+      cp linux/nexina.omni.preview.desktop $SNAPCRAFT_PART_INSTALL/usr/share/applications/
+      # Install icon
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/icons/hicolor/512x512/apps
+      cp linux/nexina.omni.preview.png $SNAPCRAFT_PART_INSTALL/usr/share/icons/hicolor/512x512/apps/nexina.omni.preview.png
+      # Install metainfo
+      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/share/metainfo
+      cp linux/nexina.omni.preview.metainfo.xml $SNAPCRAFT_PART_INSTALL/usr/share/metainfo/
